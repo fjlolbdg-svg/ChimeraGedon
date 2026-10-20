@@ -1,0 +1,2 @@
+Noto fonts (Noto Sans, Noto Sans CJK JP/KR, Noto Sans Devanagari) are licensed under the SIL Open Font License 1.1.
+See https://scripts.sil.org/OFL
