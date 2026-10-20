@@ -9,7 +9,7 @@ namespace ChimeraGedon.Game
     /// 選択肢を縦に並べて1つ選ばせるモーダル。await で結果（選んだ index、キャンセルは -1）を受け取れる。
     /// 対象・部位・エリア・入札額など、計画の入力はすべてこれで行う（スマホで押しやすい大きなボタン）。
     /// </summary>
-    public sealed class OptionModal
+    public sealed class OptionModal : IChooser
     {
         public struct Option
         {
@@ -25,6 +25,8 @@ namespace ChimeraGedon.Game
         readonly Text body;
         readonly RectTransform list;
         TaskCompletionSource<int> pending;
+        /// <summary>Choose ごとに増える。古いボタン（破棄待ち・連打）の押下を無視するため。</summary>
+        int generation;
 
         public bool IsOpen => root.gameObject.activeSelf;
 
@@ -67,20 +69,33 @@ namespace ChimeraGedon.Game
             }
             pending?.TrySetResult(-1);
             pending = new TaskCompletionSource<int>();
+            generation++;
+            int gen = generation;
             title.text = titleText;
             body.text = bodyText ?? "";
-            Ui.ClearChildren(list);
+            for (int c = list.childCount - 1; c >= 0; c--)
+            {
+                var child = list.GetChild(c).gameObject;
+                child.SetActive(false); // Destroy はフレーム末なので、同じフレーム中に押されないよう先に隠す
+                Object.Destroy(child);
+            }
 
             int count = options.Count + (cancellable ? 1 : 0);
+            // 選択肢が少なく本文が長いとき（ログ・リザルト・説明）は本文の領域を広げる
+            bool tall = count <= 2 && (bodyText ?? "").Split('\n').Length > 4;
+            float split = tall ? (full ? 0.16f : 0.30f) : 0.65f;
+            body.rectTransform.anchorMin = new Vector2(0.05f, split + 0.01f);
+            list.anchorMax = new Vector2(0.95f, split);
             var layout = list.GetComponent<VerticalLayoutGroup>();
             layout.spacing = full ? 14 : 6;
             float height = Mathf.Clamp((full ? 900f : 390f) / Mathf.Max(1, count) - layout.spacing, full ? 70 : 36, full ? 140 : 90);
+            if (tall) height = Mathf.Min(height, full ? 90 : 70);
             for (int i = 0; i < options.Count; i++)
             {
                 int index = i;
-                AddButton(options[i].Label, height, options[i].Enabled, Ui.ButtonColor, () => Finish(index));
+                AddButton(options[i].Label, height, options[i].Enabled, Ui.ButtonColor, () => Finish(index, gen));
             }
-            if (cancellable) AddButton("もどる", height, true, Ui.ButtonDisabled, () => Finish(-1));
+            if (cancellable) AddButton("もどる", height, true, Ui.ButtonDisabled, () => Finish(-1, gen));
 
             root.SetAsLastSibling();
             root.gameObject.SetActive(true);
@@ -106,14 +121,15 @@ namespace ChimeraGedon.Game
             txt.resizeTextMaxSize = 32;
         }
 
-        void Finish(int index)
+        void Finish(int index, int gen)
         {
+            if (gen != generation || pending == null) return;
             root.gameObject.SetActive(false);
             var p = pending;
             pending = null;
             p?.TrySetResult(index);
         }
 
-        public void Close() => Finish(-1);
+        public void Close() => Finish(-1, generation);
     }
 }

@@ -9,7 +9,7 @@ namespace ChimeraGedon.Game
     /// 計画フェイズの入力。メニュー → 必要な項目（対象・部位・エリアなど）を順番に聞いて ActionPlan を組み立てる。
     /// 部位・カードごとに何を聞くかは AskSkillParams / AskCardParams の switch（PARTS_AND_CARDS.md と対応）。
     /// </summary>
-    public sealed partial class ChimeraApp
+    public sealed partial class SoloMatch
     {
         List<AttackArrow> lastArrows = new List<AttackArrow>();
 
@@ -72,6 +72,7 @@ namespace ChimeraGedon.Game
                     new OptionModal.Option("公開（部位のスキルを使う）", canReveal),
                     new OptionModal.Option(card == null ? "カードを使う（サブ）" : "カードをやめる", canCard || card != null),
                 };
+                opts.Add(new OptionModal.Option("これまでのログを見る"));
                 if (canLie) opts.Add(new OptionModal.Option(LieLabel()));
 
                 int pick = await modal.Choose($"R{S.Round} 行動を選ぶ",
@@ -83,7 +84,13 @@ namespace ChimeraGedon.Game
                     else card = await AskCard(hand);
                     continue;
                 }
-                if (pick == 5) { await EditLieProfile(); continue; }
+                if (pick == 5)
+                {
+                    var recent = history.Skip(System.Math.Max(0, history.Count - 30));
+                    await modal.Choose("これまでのログ（最新30行）", string.Join("\n", recent), new[] { "とじる" }, cancellable: false, full: true);
+                    continue;
+                }
+                if (pick == 6) { await EditLieProfile(); continue; }
 
                 var plan = new ActionPlan { KeepIndex = basePlan.KeepIndex, InterrogateSlot = basePlan.InterrogateSlot, Card = card };
                 bool ok = true;

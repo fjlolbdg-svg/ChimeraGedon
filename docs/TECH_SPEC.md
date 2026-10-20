@@ -143,8 +143,9 @@ DOUBT! と同じ4シーン構成。UI は DOUBT! のネオン調・SafeArea・�
 - [x] Unity プロジェクト作成（URP 2D）
 - [x] GitHub と接続
 - [x] 仕様書（docs/）と CLAUDE.md
-- [ ] 縦画面・解像度・SafeArea の設定
-- [ ] 4シーン作成と Build Settings 登録、`SceneController`
+- [x] 縦画面の設定（PlayerSettings: Portrait 固定）
+- [ ] SafeArea 対応
+- [~] シーン構成: いまは `Assets/Scenes/Main.unity` 1つ（`ChimeraApp` が画面をコードで組み立てる）。オンライン化のときに Title / Lobby / Game / Result へ分けるか判断する
 - [ ] パッケージ導入（1章の表）
 
 ### フェーズ1: ルールエンジン（オフライン）✅
@@ -159,10 +160,21 @@ DOUBT! と同じ4シーン構成。UI は DOUBT! のネオン調・SafeArea・�
 - [x] ボット（`Core/Bots/BotBrain.cs`）と自動対戦（`BotSimulator`、メニュー `ChimeraGedon/Simulate Bot Matches`）
 - [ ] ボットを賢くする（交換・装備・使命を狙う、敵を絞って攻撃する）
 
-### フェーズ2: ソロで遊べる形
-- [ ] Game 画面（マップ・自分パネル・アクション・ガード・解決演出・ログ・疑惑メモ）
-- [ ] Lobby（デッキ編集）、Result
+### フェーズ2: ソロで遊べる形 ✅（見た目は仮）
+- [x] 画面の土台（`Game/Ui`: uGUI をコードで組む部品、選択モーダル `OptionModal`）。フォントは Noto Sans JP（`Resources/Fonts`、OFL）
+  > Memo: 今は legacy `UnityEngine.UI.Text`。TMP Essentials を入れたら TextMeshPro へ移す。
+- [x] Game 画面（`Game/Views/GameScreen.cs`: 上部バー・2×2マップ・自分のキメラ・ログ）
+- [x] 進行（`Game/Solo/SoloMatch.cs`）: ガチャ演出 → 初期エリア → 移動 → 計画（全部位・全カードの入力）→ ガード → 解決ログ再生 → リザルト。ダウン後の観戦/早送り、ログ履歴、偽装設定
+  > Memo: 入力は `IChooser`、表示は `IMatchView` 経由。テスト `SoloMatchFlowTests` が画面なしで120試合をランダム入力で最後まで通す。
+- [x] タイトル・人数選択（4〜8）・デッキ編集（PlayerPrefs に保存）・あそびかた（`Game/Solo/ChimeraApp.cs`）
+- [ ] 疑惑メモ（相手ごとの色メモ）
+- [ ] 演出（ガチャの動き、カプセルが割れる、攻撃の矢印、SE）とアート（部位のスプライト）
 - [ ] チュートリアル（DOUBT! の `TutorialManager` 方式）
+
+検証用ツール（Editor メニュー `ChimeraGedon/...`）:
+- `Render Game Screen Preview` … Play せずに試合画面を `Temp/ScreenPreview.png` に描く
+- `Game View: Portrait 540x960` … ゲームビューを縦にする
+- `Playtest`（Editor）/ `AutoPilot`（Game、開発ビルドのみ）… Play 中のボタン操作・撮影・ランダム自動操作
 
 ### フェーズ3: オンライン
 - [ ] 匿名認証・セッション作成 / クイックマッチ / コード参加（DOUBT! の `NetworkSessionManager` を手本）

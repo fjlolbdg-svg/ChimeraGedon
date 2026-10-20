@@ -114,7 +114,12 @@ namespace ChimeraGedon.Game
 
         public static void ClearChildren(Transform t)
         {
-            for (int i = t.childCount - 1; i >= 0; i--) UnityEngine.Object.Destroy(t.GetChild(i).gameObject);
+            for (int i = t.childCount - 1; i >= 0; i--)
+            {
+                var go = t.GetChild(i).gameObject;
+                if (Application.isPlaying) UnityEngine.Object.Destroy(go);
+                else UnityEngine.Object.DestroyImmediate(go); // エディタでのプレビュー描画用
+            }
         }
 
         public static string Hex(Color c) => ColorUtility.ToHtmlStringRGB(c);

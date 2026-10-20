@@ -2,7 +2,8 @@
     "name": "ChimeraGedon.Editor",
     "rootNamespace": "ChimeraGedon.EditorTools",
     "references": [
-        "ChimeraGedon.Core"
+        "ChimeraGedon.Core",
+        "ChimeraGedon.Game"
     ],
     "includePlatforms": [
         "Editor"

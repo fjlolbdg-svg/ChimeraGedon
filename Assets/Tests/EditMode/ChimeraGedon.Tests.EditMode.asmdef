@@ -3,6 +3,7 @@
     "rootNamespace": "ChimeraGedon.Tests",
     "references": [
         "ChimeraGedon.Core",
+        "ChimeraGedon.Game",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

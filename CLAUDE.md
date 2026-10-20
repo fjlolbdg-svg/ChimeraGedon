@@ -16,7 +16,8 @@
 
 - `Assets/Scripts/Core/` … ルールエンジン（純C#、UnityEngine 不使用）。入口は `Rules/MatchEngine.cs`。データ表は `Data/Catalog.cs`、数値は `Balance.cs`。
 - `Assets/Scripts/Core/Bots/` … ボットと自動対戦（バランス検証）。
-- `Assets/Scripts/Editor/` … エディタメニュー（`ChimeraGedon/...`）。
+- `Assets/Scripts/Game/` … 画面と進行（uGUI をコードで構築）。入口は `Solo/ChimeraApp.cs`（Main シーンに配置）、1試合の進行は `Solo/SoloMatch.cs`。
+- `Assets/Scripts/Editor/` … エディタメニュー（`ChimeraGedon/...`）。画面の見た目は `Render Game Screen Preview` で PNG にして確認できる。
 - `Assets/Tests/EditMode/` … ルールのテスト。ルールを変えたらテストも直して全件通すこと。
 
 ルールを変えるときは、先に `docs/` を更新してから実装する。数値調整は GAME_SPEC.md の「バランス調整ログ」に残す。
